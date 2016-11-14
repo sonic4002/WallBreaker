@@ -14,10 +14,10 @@ namespace WallBreaker
         public Vector2 ballPosition;
         public Vector2 ballSpeed;
         Game game;
-        int maxX;
-        int maxY;
+        public int maxX;
+        public int maxY;
         SpriteBatch spriteBatch;
-        Breaker breaker;
+        public Breaker breaker;
 
         public ball(Game game) : base (game)
         {
@@ -26,14 +26,20 @@ namespace WallBreaker
             this.game = game;
             maxX = this.game.GraphicsDevice.Viewport.Width - ballSprite.Width;
             maxY = this.game.GraphicsDevice.Viewport.Height - ballSprite.Height;
-            spriteBatch = (SpriteBatch)game.Services.GetService(typeof(SpriteBatch));
-            breaker= (Breaker)game.Services.GetService(typeof(Breaker));
+            spriteBatch = (SpriteBatch)game.Services.GetService(typeof(SpriteBatch));            
+        }
+
+        public override void Initialize()
+        {
             ballPosition = new Vector2(breaker.breakerPosition.X + breaker.BreakerSprite.Width / 2, breaker.breakerPosition.Y - ballSprite.Height - 3);
             ballRectangle = new Rectangle((int)ballPosition.X, (int)ballPosition.Y, ballSprite.Width, ballSprite.Height);
+            base.Initialize();
         }
 
         public override void Update(GameTime gameTime)
         {
+
+
             ballPosition.X += (ballSpeed.X * (float)gameTime.ElapsedGameTime.TotalSeconds);
             ballPosition.Y -= (ballSpeed.Y * (float)gameTime.ElapsedGameTime.TotalSeconds);
 
@@ -51,6 +57,7 @@ namespace WallBreaker
                 ballPosition.X = (breaker.breakerPosition.X + breaker.BreakerSprite.Width / 2);
                 ballPosition.Y = breaker.breakerPosition.Y - ballSprite.Height;
                 ballSpeed.Y *= -1;
+                Game1.life--;
             }
 
             base.Update(gameTime);

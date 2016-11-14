@@ -20,28 +20,16 @@ namespace WallBreaker
         SpriteBatch spriteBatch;
 
         Texture2D BreakerSprite;
-        Texture2D Break1Sprite;
-        Texture2D Break2Sprite;
-        Texture2D Break3Sprite;
         Texture2D HeartSprite;
 
-
-        Break[,] breaksPos;
-        Breaker breaker;
-        ball ball;
-        Vector2 ballPosition = Vector2.Zero;
-        Vector2 ballSpeed = new Vector2(170, -170);
-        Vector2 breakerPosition = Vector2.Zero;
+        Scene1 scene1;
+        
 
         SpriteFont font;
+        public static int score { get; set; }
+        public static int life { get; set; }
 
-        int maxX;
-        int maxY;
-        int matrixX;
-        int matrixY;
-        int score;
-        int life;
-
+        
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -57,46 +45,13 @@ namespace WallBreaker
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
-            int i, j;
             base.Initialize();
-            matrixX = 6;
-            matrixY = 6;
+            scene1.Initialize();
             score = 0;
             life = 3;
 
-            breaksPos = new Break[matrixX, matrixY];
-            maxX = GraphicsDevice.Viewport.Width - ball.ballSprite.Width;
-            maxY = GraphicsDevice.Viewport.Height - ball.ballSprite.Height;
-
-            for (i = 0; i < matrixX; i++)
-            {
-                for (j = 0; j < matrixY; j++)
-                {
-                    if ((i == 0) && (j == 0))
-                        breaksPos[i, j] = new Break(new Vector2(80, 40));
-
-                    else if ((i > 0) && (j == 0))
-                        breaksPos[i, j] = new Break(new Vector2(breaksPos[i-1, j].breakPosition.X, breaksPos[i-1,j].breakPosition.Y+Break1Sprite.Height + 15));
-                    else
-                        breaksPos[i, j] = new Break(new Vector2(breaksPos[i, j-1].breakPosition.X +Break1Sprite.Width + 5, breaksPos[i, j-1].breakPosition.Y));
-                    if (i % 3 == 0)
-                    {
-                        breaksPos[i, j].breakPic = Break1Sprite;
-                        breaksPos[i, j].score = 10;
-                    }
-                    if (i % 3 == 1)
-                    {
-                        breaksPos[i, j].breakPic = Break2Sprite;
-                        breaksPos[i, j].score = 20;
-                    }
-                    if (i % 3 == 2)
-                    {
-                        breaksPos[i, j].breakPic = Break3Sprite;
-                        breaksPos[i, j].score = 30;
-                    }
-                    breaksPos[i, j].setRec();
-                }
-            }
+            
+         
 
         }
 
@@ -107,20 +62,13 @@ namespace WallBreaker
         protected override void LoadContent()
         {
             // Create a new SpriteBatch, which can be used to draw textures.
-            spriteBatch = new SpriteBatch(GraphicsDevice);
-            BreakerSprite = Content.Load<Texture2D>("breaker");
-            Break1Sprite = Content.Load<Texture2D>("break1");
-            Break2Sprite = Content.Load<Texture2D>("break2");
-            Break3Sprite = Content.Load<Texture2D>("break3");
+            spriteBatch = new SpriteBatch(GraphicsDevice);          
             HeartSprite = Content.Load<Texture2D>("heart");
             font = Content.Load<SpriteFont>("Master");
             Services.AddService(typeof(SpriteBatch), spriteBatch);
-            breaker = new Breaker(this);
-            this.Components.Add(breaker);
-            Services.AddService(typeof(Breaker), breaker);
-            ball = new ball(this);
-            this.Components.Add(ball);
-            
+            scene1 = new Scene1(this);
+            scene1.Show();
+            Components.Add(scene1);
             // TODO: use this.Content to load your game content here
         }
 
@@ -144,23 +92,9 @@ namespace WallBreaker
             // Allows the game to exit
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
                 this.Exit();
-
-            if (ball.ballRectangle.Intersects(breaker.breakerRectangle))
-                ball.ballSpeed.Y *= -1;
-            //if (breaker.breakerRectangle.Intersects(ball.ballRectangle))
-            //    ball.ballSpeed.Y *= -1;
-
-            for (i = 0; i < matrixX; i++)
+            if (scene1.EndScene)
             {
-                for (j = 0; j < matrixY; j++)
-                {
-                    if (ball.ballRectangle.Intersects(breaksPos[i,j].breakBounds) && (breaksPos[i, j].alive == true))
-                    {
-                        breaksPos[i, j].alive = false;
-                        ball.ballSpeed.Y *= -1;
-                        score += breaksPos[i, j].score;
-                    }
-                }
+                scene1.Hide();
             }
 
             base.Update(gameTime);
@@ -172,18 +106,11 @@ namespace WallBreaker
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            int i, j;
+            int i;
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             spriteBatch.Begin();
-            for (i = 0; i < matrixX; i++)
-            {
-                for (j = 0; j < matrixY; j++)
-                {
-                    if (breaksPos[i,j].alive == true)
-                        spriteBatch.Draw(breaksPos[i, j].breakPic, breaksPos[i, j].breakPosition, Color.White);
-                }
-            }
+
             spriteBatch.DrawString(font, "Score : "+score, new Vector2(2, 30), Color.Red);
             spriteBatch.DrawString(font, "Life : " + life, new Vector2(2, 15), Color.Red);
             for (i=0; i<life; i++)

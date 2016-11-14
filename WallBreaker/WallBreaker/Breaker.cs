@@ -29,12 +29,15 @@ namespace WallBreaker
             spriteBatch = (SpriteBatch)game.Services.GetService(typeof(SpriteBatch));
             maxX = game.GraphicsDevice.Viewport.Width - BreakerSprite.Width;
             maxY = game.GraphicsDevice.Viewport.Height - BreakerSprite.Height;
-            breakerRectangle = new Rectangle((int)breakerPosition.X, (int)breakerPosition.Y, BreakerSprite.Width, BreakerSprite.Height);
+            game.Services.AddService(typeof(Vector4),new Vector4 (breakerPosition, BreakerSprite.Width, BreakerSprite.Height));
+            //game.Services.AddService(typeof(Vector2), new Vector2(BreakerSprite.Width, BreakerSprite.Height));
         }
 
         public override void Update(GameTime gameTime)
         {
             KeyState = Keyboard.GetState();
+            breakerRectangle = new Rectangle((int)breakerPosition.X, (int)breakerPosition.Y, BreakerSprite.Width, BreakerSprite.Height);
+
             if (KeyState.IsKeyDown(Keys.Right))
                 if (breakerPosition.X < maxX)
                     breakerPosition.X += 5;
