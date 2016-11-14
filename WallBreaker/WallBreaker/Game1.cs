@@ -23,6 +23,7 @@ namespace WallBreaker
         Texture2D HeartSprite;
 
         Scene1 scene1;
+        Scene2 scene2;
         
 
         SpriteFont font;
@@ -49,10 +50,6 @@ namespace WallBreaker
             scene1.Initialize();
             score = 0;
             life = 3;
-
-            
-         
-
         }
 
         /// <summary>
@@ -68,7 +65,10 @@ namespace WallBreaker
             Services.AddService(typeof(SpriteBatch), spriteBatch);
             scene1 = new Scene1(this);
             scene1.Show();
+            scene2 = new Scene2(this);
+            scene2.Hide();
             Components.Add(scene1);
+            Components.Add(scene2);
             // TODO: use this.Content to load your game content here
         }
 
@@ -95,6 +95,9 @@ namespace WallBreaker
             if (scene1.EndScene)
             {
                 scene1.Hide();
+                
+                scene2.Initialize();
+                scene2.Show();
             }
 
             base.Update(gameTime);

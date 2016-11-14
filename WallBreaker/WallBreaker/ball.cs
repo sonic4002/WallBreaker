@@ -38,8 +38,6 @@ namespace WallBreaker
 
         public override void Update(GameTime gameTime)
         {
-
-
             ballPosition.X += (ballSpeed.X * (float)gameTime.ElapsedGameTime.TotalSeconds);
             ballPosition.Y -= (ballSpeed.Y * (float)gameTime.ElapsedGameTime.TotalSeconds);
 

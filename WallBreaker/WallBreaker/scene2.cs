@@ -7,12 +7,12 @@ using System.Text;
 
 namespace WallBreaker
 {
-    class Scene1 : Scene
+    class Scene2 : Scene
     {
+        Game game;
 
         private SpriteBatch spriteBatch;
         public bool EndScene;
-        private Game game;
         private ball ballSprite;
         private Breaker breakerSprite;
         Break[,] breaksPos;
@@ -23,7 +23,7 @@ namespace WallBreaker
         Texture2D Break3Sprite;
         int i, j;
 
-        public Scene1 (Game game) : base(game)
+        public Scene2 (Game game) : base(game)
         {
             this.game = game;
             spriteBatch = (SpriteBatch)game.Services.GetService(typeof(SpriteBatch));
@@ -36,17 +36,17 @@ namespace WallBreaker
             Break1Sprite = game.Content.Load<Texture2D>("break1");
             Break2Sprite = game.Content.Load<Texture2D>("break2");
             Break3Sprite = game.Content.Load<Texture2D>("break3");
-            matrixX = 2;
-            matrixY = 2;
+            matrixX = 4;
+            matrixY = 3;
             breaksPos = new Break[matrixX, matrixY];
-
         }
+
 
 
         public override void Initialize()
         {
-            ballSprite.Initialize();
-            breakerSprite.Initialize();
+            
+
             for (i = 0; i < matrixX; i++)
             {
                 for (j = 0; j < matrixY; j++)
@@ -60,12 +60,12 @@ namespace WallBreaker
                         breaksPos[i, j] = new Break(new Vector2(breaksPos[i, j - 1].breakPosition.X + Break1Sprite.Width + 5, breaksPos[i, j - 1].breakPosition.Y));
                     if (i % 3 == 0)
                     {
-                        breaksPos[i, j].breakPic = Break1Sprite;
+                        breaksPos[i, j].breakPic = Break3Sprite;
                         breaksPos[i, j].score = 10;
                     }
                     if (i % 3 == 1)
                     {
-                        breaksPos[i, j].breakPic = Break2Sprite;
+                        breaksPos[i, j].breakPic = Break3Sprite;
                         breaksPos[i, j].score = 20;
                     }
                     if (i % 3 == 2)
@@ -89,7 +89,7 @@ namespace WallBreaker
         }
 
         public override void Update(GameTime gameTime)
-        {   
+        {
 
             if (ballSprite.ballRectangle.Intersects(breakerSprite.breakerRectangle))
                 ballSprite.ballSpeed.Y *= -1;
@@ -98,10 +98,8 @@ namespace WallBreaker
             {
                 for (j = 0; j < matrixY; j++)
                 {
-                    EndScene = false;
                     if (ballSprite.ballRectangle.Intersects(breaksPos[i, j].breakBounds) && (breaksPos[i, j].alive == true))
                     {
-                        EndScene = true;
                         breaksPos[i, j].alive = false;
                         ballSprite.ballSpeed.Y *= -1;
                         Game1.score += breaksPos[i, j].score;
@@ -114,7 +112,6 @@ namespace WallBreaker
 
         public override void Draw(GameTime gameTime)
         {
-            EndScene = true;
             for (i = 0; i < matrixX; i++)
             {
                 for (j = 0; j < matrixY; j++)
@@ -127,7 +124,5 @@ namespace WallBreaker
         }
 
 
-
-           
     }
 }
