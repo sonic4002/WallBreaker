@@ -23,19 +23,16 @@ namespace WallBreaker
         Texture2D Break1Sprite;
         Texture2D Break2Sprite;
         Texture2D Break3Sprite;
-        Texture2D BallSprite;
         Texture2D HeartSprite;
 
 
         Break[,] breaksPos;
         Breaker breaker;
         ball ball;
-
         Vector2 ballPosition = Vector2.Zero;
         Vector2 ballSpeed = new Vector2(170, -170);
         Vector2 breakerPosition = Vector2.Zero;
 
-        KeyboardState KeyState;
         SpriteFont font;
 
         int maxX;
@@ -68,10 +65,6 @@ namespace WallBreaker
             life = 3;
 
             breaksPos = new Break[matrixX, matrixY];
-
-            breaker = new Breaker(new Vector2(GraphicsDevice.Viewport.Width / 2, GraphicsDevice.Viewport.Height - BreakerSprite.Height * 2), BreakerSprite);
-            ball = new ball(new Vector2(breaker.breakerPosition.X + breaker.BreakerSprite.Width / 2, breaker.breakerPosition.Y - BallSprite.Height + 3), new Vector2(170, -170), BallSprite);
-
             maxX = GraphicsDevice.Viewport.Width - ball.ballSprite.Width;
             maxY = GraphicsDevice.Viewport.Height - ball.ballSprite.Height;
 
@@ -119,11 +112,15 @@ namespace WallBreaker
             Break1Sprite = Content.Load<Texture2D>("break1");
             Break2Sprite = Content.Load<Texture2D>("break2");
             Break3Sprite = Content.Load<Texture2D>("break3");
-            BallSprite = Content.Load<Texture2D>("ball");
             HeartSprite = Content.Load<Texture2D>("heart");
             font = Content.Load<SpriteFont>("Master");
-
-
+            Services.AddService(typeof(SpriteBatch), spriteBatch);
+            breaker = new Breaker(this);
+            this.Components.Add(breaker);
+            Services.AddService(typeof(Breaker), breaker);
+            ball = new ball(this);
+            this.Components.Add(ball);
+            
             // TODO: use this.Content to load your game content here
         }
 
@@ -148,37 +145,10 @@ namespace WallBreaker
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
                 this.Exit();
 
-            ball.ballPosition.X += (ball.ballSpeed.X * (float)gameTime.ElapsedGameTime.TotalSeconds);
-            ball.ballPosition.Y -= (ball.ballSpeed.Y * (float)gameTime.ElapsedGameTime.TotalSeconds);
-
-            ball.ballRectangle = new Rectangle((int)ball.ballPosition.X, (int)ball.ballPosition.Y, ball.ballSprite.Width, ball.ballSprite.Height);
-            breaker.breakerRectangle = new Rectangle((int)breaker.breakerPosition.X, (int)breaker.breakerPosition.Y, breaker.BreakerSprite.Width, breaker.BreakerSprite.Height);
-
-            if (ball.ballPosition.X > maxX || ball.ballPosition.X < 0)
-                ball.ballSpeed.X *= -1;
-            if (ball.ballPosition.Y < 0)
+            if (ball.ballRectangle.Intersects(breaker.breakerRectangle))
                 ball.ballSpeed.Y *= -1;
-            if (ball.ballPosition.Y > maxY)
-            {
-                breaker.breakerPosition.X = (GraphicsDevice.Viewport.Width / 2);
-                breaker.breakerPosition.Y = GraphicsDevice.Viewport.Height - breaker.BreakerSprite.Height * 2;
-                ball.ballPosition.X = (breaker.breakerPosition.X + breaker.BreakerSprite.Width / 2);
-                ball.ballPosition.Y = breaker.breakerPosition.Y - ball.ballSprite.Height;
-                ball.ballSpeed.Y *= -1;
-                life--;
-            }
-
-            KeyState = Keyboard.GetState();
-            if (KeyState.IsKeyDown(Keys.Right))
-                if (breaker.breakerPosition.X + breaker.BreakerSprite.Width < maxX)
-                    breaker.breakerPosition.X += 5;
-            if (KeyState.IsKeyDown(Keys.Left))
-                if (breaker.breakerPosition.X > 0)
-                    breaker.breakerPosition.X -= 5;
-
-
-            if (breaker.breakerRectangle.Intersects(ball.ballRectangle))
-                ball.ballSpeed.Y *= -1;
+            //if (breaker.breakerRectangle.Intersects(ball.ballRectangle))
+            //    ball.ballSpeed.Y *= -1;
 
             for (i = 0; i < matrixX; i++)
             {
@@ -206,8 +176,6 @@ namespace WallBreaker
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             spriteBatch.Begin();
-            spriteBatch.Draw(ball.ballSprite, ball.ballPosition, Color.White);
-            spriteBatch.Draw(breaker.BreakerSprite, breaker.breakerPosition, Color.White);
             for (i = 0; i < matrixX; i++)
             {
                 for (j = 0; j < matrixY; j++)
@@ -222,8 +190,9 @@ namespace WallBreaker
             {
                 spriteBatch.Draw(HeartSprite, new Vector2((int)(100 + HeartSprite.Width*i*0.15) , 15), null,Color.White,0, new Vector2(0, 0),(float)0.1, SpriteEffects.None, 0); 
             }
-            spriteBatch.End();
+            
             base.Draw(gameTime);
+            spriteBatch.End();
         }
     }
 }
